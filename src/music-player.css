@@ -1,0 +1,236 @@
+.music-player {
+  display: flex;
+  padding: 640px 80px 207px;
+  flex-direction: column;
+  overflow: hidden;
+  align-items: center;
+  font-family: "Martian Mono", -apple-system, Roboto, Helvetica, sans-serif;
+  color: rgba(222, 222, 222, 1);
+  text-align: center;
+  text-transform: uppercase;
+}
+
+
+
+.song-list {
+  width: 422px;
+  max-width: 100%;
+}
+
+.song-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 400;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.song-title {
+  background-color: rgba(25, 25, 25, 1);
+  align-self: stretch;
+  min-width: 240px;
+  margin: auto;
+  padding: 16px 42px;
+  overflow: hidden;
+  width: 350px;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.play-button,
+.add-button {
+  background-color: rgba(25, 25, 25, 1);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.play-icon {
+  aspect-ratio: 1.48;
+  object-fit: contain;
+  object-position: center;
+  width: 68px;
+  align-self: stretch;
+  margin: auto;
+}
+
+.song-item-inactive {
+  color: rgba(115, 115, 115, 1);
+}
+
+.add-button {
+  align-self: stretch;
+  margin: auto;
+  padding: 2px 21px;
+  overflow: hidden;
+  font-size: 36px;
+  font-weight: 100;
+  width: 68px;
+  color: rgba(115, 115, 115, 1);
+}
+
+.remove-button {
+  background-color: rgba(25, 25, 25, 1);
+  border: none;
+  cursor: pointer;
+  padding: 2px 21px;
+  overflow: hidden;
+  font-size: 36px;
+  font-weight: 100;
+  width: 68px;
+  color: rgba(222, 222, 222, 1);
+  align-self: stretch;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.remove-icon {
+  display: inline-block;
+  transform: rotate(45deg);
+  font-size: 36px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.action-buttons {
+  display: flex;
+  margin-top: 381px;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 400;
+  white-space: nowrap;
+  justify-content: flex-start;
+}
+
+.action-group {
+  align-self: stretch;
+  display: flex;
+  margin: auto;
+  align-items: center;
+  gap: 4px;
+  justify-content: flex-start;
+}
+
+.action-button {
+  background-color: rgba(25, 25, 25, 1);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 16px 42px;
+  color: rgba(222, 222, 222, 1);
+  font-size: 12px;
+  font-weight: 400;
+  text-transform: uppercase;
+  width: 137px;
+}
+
+.action-text {
+  margin: auto;
+}
+
+.action-icon {
+  display: inline-block;
+  width: 36px;
+  text-align: center;
+  font-size: 36px;
+  font-weight: 100;
+  line-height: 1;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Focus styles for accessibility */
+.play-button:focus,
+.add-button:focus,
+.action-button:focus {
+  outline: 2px solid rgba(222, 222, 222, 1);
+  outline-offset: 2px;
+}
+
+/* Hover states */
+.play-button:hover,
+.add-button:hover,
+.action-button:hover {
+  background-color: rgba(35, 35, 35, 1);
+}
+
+/* Input integrato nello slot per aggiungere canzoni */
+.song-item-inactive .song-title,
+.song-item-inactive input.song-title {
+  background-color: rgba(25, 25, 25, 1);
+  color: rgba(115, 115, 115, 1);
+  border: none;
+  outline: none;
+  min-width: 240px;
+  width: 350px;
+  padding: 16px 42px;
+  font-size: 12px;
+  font-weight: 400;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+
+.song-item-inactive input.song-title:focus,
+.song-item-inactive input.song-title:not(:placeholder-shown) {
+  color: rgba(222, 222, 222, 1);
+  background-color: rgba(25, 25, 25, 1);
+}
+
+/* Rimuovi la cornice blu di default su focus */
+.song-item-inactive input.song-title:focus {
+  outline: 2px solid rgba(222, 222, 222, 1);
+  outline-offset: 2px;
+}
+
+/* Disabilita la freccia di autocomplete su Safari/iOS */
+.song-item-inactive input.song-title::-webkit-input-placeholder { color: rgba(115, 115, 115, 1); }
+.song-item-inactive input.song-title:-moz-placeholder { color: rgba(115, 115, 115, 1); }
+.song-item-inactive input.song-title::-moz-placeholder { color: rgba(115, 115, 115, 1); }
+.song-item-inactive input.song-title:-ms-input-placeholder { color: rgba(115, 115, 115, 1); }
+.song-item-inactive input.song-title::placeholder { color: rgba(115, 115, 115, 1); }
+
+@media (max-width: 991px) {
+  .music-player {
+    padding: 100px 20px;
+  }
+
+  .song-title {
+    padding: 16px 20px;
+  }
+
+  .add-button {
+    padding: 2px 20px;
+    white-space: initial;
+  }
+
+  .remove-button {
+    padding: 2px 20px;
+    white-space: initial;
+  }
+
+  .action-buttons {
+    max-width: 100%;
+    margin-top: 40px;
+    white-space: initial;
+  }
+
+  .action-group {
+    white-space: initial;
+  }
+
+  .action-button {
+    padding: 16px 20px;
+    white-space: initial;
+  }
+}
