@@ -1,262 +1,157 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import './music-player.css'; // Assicurati che questo file esista e sia corretto
+import React, { useState, useEffect, useCallback } from 'react';
+import './music-player.css';
 
-// DEFINIZIONE DI ColorGradientDisplay (spostata prima di App)
-function ColorGradientDisplay({ colors }) {
-    const gradientRef = useRef(null);
-    const [backgroundPosition, setBackgroundPosition] = useState(0);
-    const animationFrameRef = useRef(null);
-    const lastMouseY = useRef(0);
-    const scrollSpeed = useRef(0);
-    const targetScrollSpeed = useRef(0);
-
-    const totalGradientHeight = colors.length > 0 ? colors.length * 100 : 200;
-    const loopPoint = totalGradientHeight > 0 ? totalGradientHeight : 200;
-
-    const animateScroll = useCallback(() => {
-        setBackgroundPosition(prevPos => {
-            const newPos = prevPos + scrollSpeed.current;
-            return loopPoint > 0 ? newPos % loopPoint : newPos;
-        });
-        scrollSpeed.current += (targetScrollSpeed.current - scrollSpeed.current) * 0.05;
-        animationFrameRef.current = requestAnimationFrame(animateScroll);
-    }, [loopPoint]);
-
-    useEffect(() => {
-        targetScrollSpeed.current = 0.5;
-        animationFrameRef.current = requestAnimationFrame(animateScroll);
-        return () => {
-            if (animationFrameRef.current) {
-                cancelAnimationFrame(animationFrameRef.current);
-            }
+function BackgroundGradient({ colors }) {
+    if (colors.length === 0) return null;
+    
+    const gradientStyle = colors.length === 1
+        ? { backgroundColor: colors[0] }
+        : {
+            backgroundImage: `linear-gradient(to bottom, ${colors.map((color, index) => {
+                const percentage = (index / (colors.length - 1)) * 100;
+                return `${color} ${percentage}%`;
+            }).join(', ')})`,
+            backgroundSize: '100% 100%',
+            backgroundRepeat: 'no-repeat'
         };
-    }, [animateScroll]);
-
-    const handleMouseMove = useCallback((e) => {
-        if (!gradientRef.current) return;
-        const rect = gradientRef.current.getBoundingClientRect();
-        const mouseY = e.clientY - rect.top;
-        const normalizedMouseY = rect.height > 0 ? mouseY / rect.height : 0.5;
-        targetScrollSpeed.current = (normalizedMouseY - 0.5) * 4;
-        lastMouseY.current = mouseY;
-    }, []);
-
-    const handleMouseLeave = useCallback(() => {
-        targetScrollSpeed.current = 0.5;
-    }, []);
-
-    const handleTouchMove = useCallback((e) => {
-        if (!gradientRef.current || !e.touches[0]) return;
-        const rect = gradientRef.current.getBoundingClientRect();
-        const touchY = e.touches[0].clientY - rect.top;
-        const normalizedTouchY = rect.height > 0 ? touchY / rect.height : 0.5;
-        targetScrollSpeed.current = (normalizedTouchY - 0.5) * 4;
-        lastMouseY.current = touchY;
-    }, []);
-
-    const handleTouchEnd = useCallback(() => {
-        targetScrollSpeed.current = 0.5;
-    }, []);
-
-    const displayColors = colors.length === 0
-        ? ['rgba(51, 51, 51, 1)', 'rgba(51, 51, 51, 1)']
-        : colors.length === 1
-            ? [colors[0], colors[0]]
-            : colors;
-
-    const gradientStyle = {
-        backgroundImage: `linear-gradient(to bottom, ${displayColors.join(', ')})`,
-        backgroundSize: `100% ${totalGradientHeight > 0 ? totalGradientHeight * 2 : 400}px`,
-        backgroundPosition: `0px ${-backgroundPosition}px`,
-        transition: 'background-position 0.05s linear',
-    };
-
-    return (
-        <div
-            ref={gradientRef}
-            className="absolute inset-0 w-full h-full -z-10 overflow-hidden"
-            style={gradientStyle}
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-        />
-    );
+    
+    return <div className="background-gradient" style={gradientStyle} />;
 }
 
-
 function App() {
-    // ... (tutti i tuoi state: songs, currentSongTitle, ecc. come prima) ...
     const [songs, setSongs] = useState([]);
-    const [currentSongTitle, setCurrentSongTitle] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
-    const [isProcessingSongs, setIsProcessingSongs] = useState(false);
-    const [gradientColors, setGradientColors] = useState([]);
+    const [inputValue, setInputValue] = useState('');
+    const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
-    // ... (le tue funzioni: getMoodAndColor, generateColorFromMood, addSong, removeSong come definite/corrette in precedenza) ...
     const getMoodAndColor = useCallback(async (songTitle) => {
         try {
-            console.log("getMoodAndColor: Fetching mood for:", songTitle);
             const response = await fetch(`${process.env.REACT_APP_API_URL}/analyze-song`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ songTitle: songTitle })
+                body: JSON.stringify({ songTitle })
             });
 
-            console.log("getMoodAndColor: Response status:", response.status);
-            if (!response.ok) {
-                const errorData = await response.json();
-                console.error("getMoodAndColor: API error response:", errorData);
-                throw new Error(`Errore API: ${response.status} - ${errorData.error || 'Errore sconosciuto'}`);
-            }
-            const result = await response.json();
-            console.log("getMoodAndColor: Parsed API result:", result);
-            
-            const finalResult = {
-                genere: result.genere || 'Sconosciuto',
-                umore: result.umore || 'neutro'
-            };
-            console.log("getMoodAndColor: Final mood/genre returned:", finalResult);
-            return finalResult;
+            if (!response.ok) throw new Error('Song not found');
+            const { umore: mood } = await response.json();
+            return mood;
         } catch (error) {
-            console.error("getMoodAndColor: Error calling backend API:", error);
-            setErrorMessage(`Errore nel recupero del genere/umore per "${songTitle}": ${error.message}`);
-            return { genere: 'Sconosciuto', umore: 'neutro' };
+            throw new Error('Song not found');
         }
-    }, []); // setErrorMessage è stabile
+    }, []);
 
-    function hashString(str) {
-        let hash = 0;
-        for (let i = 0; i < str.length; i++) {
-            hash = str.charCodeAt(i) + ((hash << 5) - hash);
-        }
-        return Math.abs(hash);
-    }
-
-    const generateColorFromMood = useCallback((mood, title = "") => {
-        const hash = hashString(title + mood);
-        let h, s, l;
-        switch (mood.toLowerCase()) {
-            case 'scuro': case 'malinconico': h = (hash % 60) + 200; s = 20 + (hash % 10); l = 10 + (hash % 10); break;
-            case 'calmo': case 'rilassante': h = 160 + (hash % 40); s = 40 + (hash % 20); l = 70 + (hash % 10); break;
-            case 'vivace': case 'allegro': h = (hash % 360); s = 70 + (hash % 20); l = 80 + (hash % 10); break;
-            case 'energetico': case 'aggressivo': h = (hash % 60); s = 80 + (hash % 15); l = 55 + (hash % 10); break;
-            default: h = (hash % 360); s = 30 + (hash % 20); l = 50 + (hash % 10); break;
-        }
-        return `hsl(${h}, ${s}%, ${l}%)`;
+    const generateColorFromMood = useCallback((mood, songTitle = '') => {
+        const moodColors = {
+            // Mood tristi/scuri
+            'triste': 'hsl(240, 40%, 20%)',      // Blu scuro
+            'malinconico': 'hsl(280, 30%, 25%)', // Viola scuro
+            'drammatico': 'hsl(260, 35%, 23%)',  // Viola più scuro
+            
+            // Mood calmi/rilassanti
+            'calmo': 'hsl(180, 40%, 40%)',       // Teal
+            'rilassante': 'hsl(140, 40%, 50%)',  // Verde
+            'ambient': 'hsl(190, 35%, 45%)',     // Blu chiaro
+            
+            // Mood allegri/energetici
+            'allegro': 'hsl(60, 70%, 60%)',      // Giallo
+            'energetico': 'hsl(0, 80%, 50%)',    // Rosso
+            'aggressivo': 'hsl(0, 70%, 40%)',    // Rosso scuro
+            
+            // Generi specifici
+            'pop': 'hsl(320, 70%, 60%)',         // Rosa
+            'rock': 'hsl(0, 65%, 45%)',          // Rosso scuro
+            'jazz': 'hsl(30, 60%, 45%)',         // Arancione
+            'classica': 'hsl(210, 40%, 45%)',    // Blu medio
+            'elettronica': 'hsl(280, 60%, 55%)', // Viola brillante
+            
+            // Mood neutri
+            'neutro': 'hsl(200, 30%, 40%)'       // Blu grigiastro (default)
+        };
+        
+        // Calcola una variazione basata sul titolo della canzone
+        const hash = songTitle.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        const baseColor = moodColors[mood.toLowerCase()] || 'hsl(200, 30%, 40%)';
+        
+        // Estrai i componenti HSL dal colore base
+        const [h, s, l] = baseColor.match(/\d+/g).map(Number);
+        
+        // Aggiungi una leggera variazione basata sul hash
+        const newHue = ((h + (hash % 20) - 10) + 360) % 360; // ±10 gradi di variazione
+        const newSat = Math.max(20, Math.min(80, s + ((hash % 10) - 5))); // ±5% di saturazione
+        const newLight = Math.max(10, Math.min(70, l + ((hash % 10) - 5))); // ±5% di luminosità
+        
+        return `hsl(${newHue}, ${newSat}%, ${newLight}%)`;
     }, []);
 
     const addSong = async () => {
-        if (currentSongTitle.trim() === '') {
-            setErrorMessage('Il titolo della canzone non può essere vuoto.');
-            return;
-        }
+        if (!inputValue.trim() || isLoading) return;
         if (songs.length >= 8) {
-            setErrorMessage('Puoi inserire un massimo di 8 canzoni.');
+            setError('Max 8 songs');
             return;
         }
-        setIsProcessingSongs(true);
-        setErrorMessage('');
+
+        setIsLoading(true);
+        setError('');
+
         try {
-            const { genere, umore } = await getMoodAndColor(currentSongTitle.trim());
-            const color = generateColorFromMood(umore, currentSongTitle.trim());
-            const newSong = { title: currentSongTitle.trim(), genre: genere, color };
-            setSongs(prevSongs => [...prevSongs, newSong]);
-            setCurrentSongTitle('');
+            const mood = await getMoodAndColor(inputValue);
+            const color = generateColorFromMood(mood, inputValue.trim());
+            setSongs(prev => [...prev, { title: inputValue.trim(), color }]);
+            setInputValue('');
         } catch (error) {
-            console.error("addSong: Errore durante l'aggiunta del brano:", error);
+            setError(error.message);
         } finally {
-            setIsProcessingSongs(false);
+            setIsLoading(false);
         }
     };
 
-    const removeSong = (indexToRemove) => {
-        const newSongs = songs.filter((_, index) => index !== indexToRemove);
-        setSongs(newSongs);
-        setErrorMessage('');
+    const removeSong = (index) => {
+        setSongs(prev => prev.filter((_, i) => i !== index));
+        setError('');
     };
-    
-    useEffect(() => {
-        let newGradientColors = songs.map(song => song.color).filter(Boolean);
-        if (newGradientColors.length === 0) {
-            newGradientColors = ['rgba(51, 51, 51, 1)', 'rgba(51, 51, 51, 1)'];
-        }
-        setGradientColors(newGradientColors);
-    }, [songs, generateColorFromMood]);
 
+    const gradientColors = songs.map(song => song.color);
 
     return (
-      // Aggiungi 'relative' al contenitore principale
-      <main className="music-player min-h-screen flex flex-col items-center justify-center relative overflow-hidden">
-        <ColorGradientDisplay colors={gradientColors} />
-        {/* Assicura che song-list (e altri elementi) siano sopra lo sfondo con z-index */}
-        <div className="song-list relative z-10"> {/* Aggiunto relative e z-10 */}
-          {songs.map((song, index) => (
-            <article className={`song-item${song.title ? '' : ' song-item-inactive'}`} key={index}>
-              <h2 className="song-title">{song.title || 'Song title & Artist name'}</h2>
-              {/* Questo è il "pallino" che hai visto. Puoi tenerlo o rimuoverlo. */}
-              {song.title && song.color && (
-                <div style={{width: '1em', height: '1em', backgroundColor: song.color, marginLeft: '0.5em', borderRadius: '50%', display: 'inline-block', border: '1px solid rgba(255,255,255,0.2)'}} title={`Colore: ${song.color}`}></div>
-              )}
-              {song.title ? (
-                <button
-                  className="remove-button"
-                  aria-label={`Rimuovi ${song.title}`}
-                  onClick={() => removeSong(index)}
-                  tabIndex={0}
-                >
-                  <span className="remove-icon">+</span>
-                </button>
-              ) : null}
-            </article>
-          ))}
-          {songs.length < 8 && (
-            <article className="song-item song-item-inactive relative z-10"> {/* Aggiunto relative e z-10 */}
-              <input
-                type="text"
-                value={currentSongTitle}
-                onChange={(e) => setCurrentSongTitle(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && addSong()}
-                placeholder="Song title & Artist name"
-                className="song-title bg-transparent border-none outline-none text-inherit w-full"
-                style={{ padding: "16px 42px", fontSize: 12, fontWeight: 400 }}
-                disabled={isProcessingSongs}
-              />
-              <button
-                className="add-button"
-                aria-label="Add song to playlist"
-                onClick={addSong}
-                tabIndex={0}
-                disabled={currentSongTitle.trim() === "" || isProcessingSongs}
-              >
-                {isProcessingSongs ? "..." : "+"}
-              </button>
-            </article>
-          )}
-  
-          {errorMessage && (
-            <p className="text-red-400 text-sm mt-2 relative z-10" aria-live="polite"> {/* Aggiunto relative e z-10 */}
-              {errorMessage}
-            </p>
-          )}
+        <main className="music-player">
+            <BackgroundGradient colors={gradientColors} />
+            
+            <div className="content">
+                {songs.map((song, index) => (
+                    <div className="song-item" key={index}>
+                        <span className="song-title">{song.title}</span>
+                        <button
+                            className="remove-button"
+                            onClick={() => removeSong(index)}
+                            aria-label="Remove song"
+                        >
+                            ×
+                        </button>
+                    </div>
+                ))}
 
-          <section className="action-buttons relative z-10"> {/* Aggiunto relative e z-10 */}
-            {/* ... i tuoi bottoni ... */}
-            <div className="action-group">
-                <button className="action-button" aria-label="Share">
-                <span className="action-icon" style={{fontSize: 36, fontWeight: 100, lineHeight: 1}}>↑</span>
-                <span className="action-text">share</span>
-                </button>
+                {songs.length < 8 && (
+                    <div className="song-input">
+                        <input
+                            type="text"
+                            value={inputValue}
+                            onChange={e => setInputValue(e.target.value)}
+                            onKeyDown={e => e.key === 'Enter' && addSong()}
+                            placeholder="Add a song..."
+                            disabled={isLoading}
+                        />
+                        <button
+                            onClick={addSong}
+                            disabled={!inputValue.trim() || isLoading}
+                        >
+                            {isLoading ? '...' : '+'}
+                        </button>
+                    </div>
+                )}
+
+                {error && <div className="error">{error}</div>}
             </div>
-            <div className="action-group">
-                <button className="action-button" aria-label="Download">
-                <span className="action-icon" style={{fontSize: 36, fontWeight: 100, lineHeight: 1}}>↓</span>
-                <span className="action-text">download</span>
-                </button>
-            </div>
-          </section>
-        </div>
-      </main>
+        </main>
     );
 }
 

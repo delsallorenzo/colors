@@ -1,236 +1,161 @@
 .music-player {
-  display: flex;
-  padding: 640px 80px 207px;
-  flex-direction: column;
-  overflow: hidden;
-  align-items: center;
-  font-family: "Martian Mono", -apple-system, Roboto, Helvetica, sans-serif;
-  color: rgba(222, 222, 222, 1);
-  text-align: center;
-  text-transform: uppercase;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #333;
+    position: relative;
+    overflow: hidden;
+    padding: 20px;
 }
 
+.background-gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transition: all 1.2s ease;
+    z-index: 0;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+}
 
-
-.song-list {
-  width: 422px;
-  max-width: 100%;
+.content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 600px;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
 .song-item {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  font-weight: 400;
-  justify-content: center;
-  margin-bottom: 4px;
+    background: rgba(25, 25, 25, 0.8);
+    padding: 16px;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.song-item:hover {
+    background: rgba(35, 35, 35, 0.85);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .song-title {
-  background-color: rgba(25, 25, 25, 1);
-  align-self: stretch;
-  min-width: 240px;
-  margin: auto;
-  padding: 16px 42px;
-  overflow: hidden;
-  width: 350px;
-  font-size: 12px;
-  font-weight: 400;
+    color: rgba(255, 255, 255, 0.95); /* Aumenta il contrasto del testo */
+    font-size: 12px;
+    font-weight: 500; /* Aumenta leggermente il peso del font */
+    text-transform: uppercase;
+    padding: 0 16px;
 }
 
-.play-button,
-.add-button {
-  background-color: rgba(25, 25, 25, 1);
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.song-input {
+    background: rgba(25, 25, 25, 0.8);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
 }
 
-.play-icon {
-  aspect-ratio: 1.48;
-  object-fit: contain;
-  object-position: center;
-  width: 68px;
-  align-self: stretch;
-  margin: auto;
+.song-input:focus-within {
+    background: rgba(35, 35, 35, 0.85);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-.song-item-inactive {
-  color: rgba(115, 115, 115, 1);
+.song-input:hover {
+    background: rgba(35, 35, 35, 0.85);
 }
 
-.add-button {
-  align-self: stretch;
-  margin: auto;
-  padding: 2px 21px;
-  overflow: hidden;
-  font-size: 36px;
-  font-weight: 100;
-  width: 68px;
-  color: rgba(115, 115, 115, 1);
+.song-input input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.95); /* Aumenta il contrasto del testo input */
+    padding: 16px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.song-input input::placeholder {
+    color: rgba(155, 155, 155, 1); /* Aumenta il contrasto del placeholder */
+}
+
+.song-input button,
+.remove-button {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.95);
+    cursor: pointer;
+    padding: 16px;
+    font-size: 18px; /* Bottoni leggermente più grandi */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 48px;
+    transition: opacity 0.2s;
+}
+
+.song-input button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .remove-button {
-  background-color: rgba(25, 25, 25, 1);
-  border: none;
-  cursor: pointer;
-  padding: 2px 21px;
-  overflow: hidden;
-  font-size: 36px;
-  font-weight: 100;
-  width: 68px;
-  color: rgba(222, 222, 222, 1);
-  align-self: stretch;
-  margin: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s;
+    opacity: 0.5;
 }
 
-.remove-icon {
-  display: inline-block;
-  transform: rotate(45deg);
-  font-size: 36px;
-  line-height: 1;
-  pointer-events: none;
+.remove-button:hover {
+    opacity: 1;
 }
 
-.action-buttons {
-  display: flex;
-  margin-top: 381px;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  font-weight: 400;
-  white-space: nowrap;
-  justify-content: flex-start;
+.error {
+    color: #ff8f8f; /* Colore errore più luminoso per miglior contrasto */
+    text-align: center;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 8px;
+    background: rgba(25, 25, 25, 0.9); /* Sfondo più scuro per gli errori */
+    border-radius: 4px;
+    backdrop-filter: blur(10px);
 }
 
-.action-group {
-  align-self: stretch;
-  display: flex;
-  margin: auto;
-  align-items: center;
-  gap: 4px;
-  justify-content: flex-start;
+/* Focus styles */
+.song-input input:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.8);
+    outline-offset: -2px;
 }
 
-.action-button {
-  background-color: rgba(25, 25, 25, 1);
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 16px 42px;
-  color: rgba(222, 222, 222, 1);
-  font-size: 12px;
-  font-weight: 400;
-  text-transform: uppercase;
-  width: 137px;
+.song-input button:focus,
+.remove-button:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.8);
+    outline-offset: 2px;
+    opacity: 1;
 }
 
-.action-text {
-  margin: auto;
-}
-
-.action-icon {
-  display: inline-block;
-  width: 36px;
-  text-align: center;
-  font-size: 36px;
-  font-weight: 100;
-  line-height: 1;
-  user-select: none;
-  pointer-events: none;
-}
-
-/* Focus styles for accessibility */
-.play-button:focus,
-.add-button:focus,
-.action-button:focus {
-  outline: 2px solid rgba(222, 222, 222, 1);
-  outline-offset: 2px;
-}
-
-/* Hover states */
-.play-button:hover,
-.add-button:hover,
-.action-button:hover {
-  background-color: rgba(35, 35, 35, 1);
-}
-
-/* Input integrato nello slot per aggiungere canzoni */
-.song-item-inactive .song-title,
-.song-item-inactive input.song-title {
-  background-color: rgba(25, 25, 25, 1);
-  color: rgba(115, 115, 115, 1);
-  border: none;
-  outline: none;
-  min-width: 240px;
-  width: 350px;
-  padding: 16px 42px;
-  font-size: 12px;
-  font-weight: 400;
-  text-transform: uppercase;
-  transition: color 0.2s;
-}
-
-.song-item-inactive input.song-title:focus,
-.song-item-inactive input.song-title:not(:placeholder-shown) {
-  color: rgba(222, 222, 222, 1);
-  background-color: rgba(25, 25, 25, 1);
-}
-
-/* Rimuovi la cornice blu di default su focus */
-.song-item-inactive input.song-title:focus {
-  outline: 2px solid rgba(222, 222, 222, 1);
-  outline-offset: 2px;
-}
-
-/* Disabilita la freccia di autocomplete su Safari/iOS */
-.song-item-inactive input.song-title::-webkit-input-placeholder { color: rgba(115, 115, 115, 1); }
-.song-item-inactive input.song-title:-moz-placeholder { color: rgba(115, 115, 115, 1); }
-.song-item-inactive input.song-title::-moz-placeholder { color: rgba(115, 115, 115, 1); }
-.song-item-inactive input.song-title:-ms-input-placeholder { color: rgba(115, 115, 115, 1); }
-.song-item-inactive input.song-title::placeholder { color: rgba(115, 115, 115, 1); }
-
+/* Media queries */
 @media (max-width: 991px) {
-  .music-player {
-    padding: 100px 20px;
-  }
+    .content {
+        padding: 1rem;
+    }
 
-  .song-title {
-    padding: 16px 20px;
-  }
+    .song-item,
+    .song-input {
+        padding: 8px;
+    }
 
-  .add-button {
-    padding: 2px 20px;
-    white-space: initial;
-  }
-
-  .remove-button {
-    padding: 2px 20px;
-    white-space: initial;
-  }
-
-  .action-buttons {
-    max-width: 100%;
-    margin-top: 40px;
-    white-space: initial;
-  }
-
-  .action-group {
-    white-space: initial;
-  }
-
-  .action-button {
-    padding: 16px 20px;
-    white-space: initial;
-  }
+    .song-title,
+    .song-input input {
+        padding: 12px;
+    }
 }
