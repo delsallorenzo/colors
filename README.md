@@ -1,3 +1,68 @@
+# Playlist Color
+
+A React application that creates dynamic color gradients based on song moods. As you add songs to your playlist, the background gradient evolves, reflecting the emotional journey of your music selection.
+
+## Features
+
+- Dynamic background gradient that changes based on song moods
+- Mood-based color selection (dark colors for sad songs, bright colors for energetic ones)
+- Clean, minimal interface
+- Supports up to 8 songs
+- Smooth transitions and animations
+- Responsive design
+
+## How it works
+
+1. Enter a song title in the input field
+2. The app analyzes the song's mood using an external API
+3. A color is assigned based on the mood (e.g., dark blue for sad songs, yellow for happy ones)
+4. The background gradient updates to include the new color
+5. Colors are slightly varied based on the song title to create unique gradients
+
+## Mood-Color Mapping
+
+- Sad songs → Dark blue
+- Melancholic songs → Dark purple
+- Calm songs → Teal
+- Happy songs → Yellow
+- Energetic songs → Red
+- Pop songs → Pink
+- Relaxing songs → Green
+- And more...
+
+## Getting Started
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/delsallorenzo/colors.git
+   ```
+
+2. Install dependencies:
+   ```bash
+   cd colors
+   npm install
+   ```
+
+3. Create a `.env` file in the root directory and add your API URL:
+   ```
+   REACT_APP_API_URL=your_api_url_here
+   ```
+
+4. Start the development server:
+   ```bash
+   npm start
+   ```
+
+## Technologies
+
+- React
+- CSS3 (with modern features like backdrop-filter)
+- External mood analysis API
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
